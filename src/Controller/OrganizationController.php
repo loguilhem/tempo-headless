@@ -8,80 +8,91 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * @Route("/api", name="api_")
+ * @Route("/api/organization", name="api_organization")
  */
 class OrganizationController extends AbstractFOSRestController
 {
+
+    /**
+     * em
+     *
+     * @var Doctrine\ORM\EntityManagerInterface
+     */
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
     /**
      * @Rest\Post(
-     *     path = "/organization",
-     *     name = "organization_create",
+     *     path = "/",
+     *     name = "_create",
      * )
      * @Rest\View(StatusCode = 201 )
      * @ParamConverter("organization", converter="fos_rest.request_body")
      */
-    public function createOrganization(Organization $organization)
+    public function create(Organization $organization): Organization
     {
-        $em = $this->getDoctrine()->getManager();
+        $this->em->persist($organization);
+        $this->em->flush();
 
-        $em->persist($organization);
-        $em->flush();
+        return $organization;
     }
 
     /**
      * @Rest\Get(
-     *     path = "/organization/{id}",
-     *     name = "organization_read",
+     *     path = "/{id}",
+     *     name = "_show",
      *     requirements = {"id"="\d+"}
      * )
      * @Rest\View
      */
-    public function readOrganization(Organization $organization): Organization
+    public function show(Organization $organization): Organization
     {
         return $organization;
     }
 
     /**
      * @Rest\Put(
-     *     path = "/organization/{id}",
-     *     name = "organization_update",
+     *     path = "/{id}",
+     *     name = "_update",
      *     requirements = {"id"="\d+"}
      * )
      * @Rest\View
      */
-    public function updateOrganization(Request $request, Organization $organization): Organization
+    public function update(Request $request, Organization $organization): Organization
     {
-        $data = json_decode($request->getContent(),null);
+        $data = json_decode($request->getContent(), null);
 
         if (NULL !== $data) {
-            $em = $this->getDoctrine()->getManager();
-            
             $organization->setName($data->name);
 
-            $em->persist($organization);
-            $em->flush();
+            $this->em->persist($organization);
+            $this->em->flush();
         }
-        
+
         return $organization;
     }
 
     /**
      * @Rest\Delete(
-     *     path = "/organization/{id}",
-     *     name = "organization_delete",
+     *     path = "/{id}",
+     *     name = "_delete",
      *     requirements = {"id"="\d+"}
      * )
      * @Rest\View
      */
-    public function deleteOrganization(Organization $organization): Organization
+    public function delete(Organization $organization): Organization
     {
-        $em = $this->getDoctrine()->getManager();
-        
-        $em->remove($organization);
-        $em->flush();
-        
+
+        $this->em->remove($organization);
+        $this->em->flush();
+
         return $organization;
     }
 }
