@@ -7,5 +7,5 @@ fos_rest:
     serializer:
         serialize_null: true
     format_listener:
-#        rules:
-#            - { path: '^/', priorities: ['json'], fallback_format: 'json' }
+        rules:
+            - { path: '^/', priorities: ['json'], fallback_format: 'json' }

@@ -32,21 +32,14 @@ class ProjectController extends AbstractFOSRestController
      *     name = "create",
      * )
      * @Rest\View
+     * @ParamConverter("project", converter="fos_rest.request_body")
      */
-    public function create(): JsonResponse
+    public function create(Project $project): Project
     {
-        $response = new JsonResponse();
-        $response
-            ->setStatusCode(201)
-            ->setData('Project created')
-        ;
+        $this->em->persist($project);
+        $this->em->flush();
 
-        return $response;
-
-//        $this->em->persist($project);
-//        $this->em->flush();
-//
-//        return $project;
+        return $project;
     }
 
     /**
